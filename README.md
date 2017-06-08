@@ -54,3 +54,15 @@ inner class ItemHolder : EasyBinderHolder<Item>(R.layout.row_item, Item::class.j
 }
 ```
 if you create holder inside Fragment/Activity, create it as inner class for easy resending of click like events
+
+
+finally create adapter with all Holders, add some data and set it to RecyclerView
+```
+val betterAdapter = BetterAdapter(HeaderHolder(), ItemHolder(), FooterHolder())
+betterAdapter.data.add(Header("Header"))
+(0..100).forEach {
+    betterAdapter.data.add(Item("Item $it", "Ttem text"))
+}
+betterAdapter.data.add(Footer("Footer"))
+list.adapter = betterAdapter
+```

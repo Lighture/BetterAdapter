@@ -16,11 +16,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         list.layoutManager = LinearLayoutManager(this)
-        val betterAdapter = BetterAdapter(
-                HeaderHolder(),
-                ItemHolder(),
-                FooterHolder()
-        )
+        val betterAdapter = BetterAdapter(HeaderHolder(), ItemHolder(), FooterHolder())
         betterAdapter.data.add(Header("Header"))
         (0..100).forEach {
             betterAdapter.data.add(Item("Item $it", "Ttem text"))
