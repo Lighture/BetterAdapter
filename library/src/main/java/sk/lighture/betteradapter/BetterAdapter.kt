@@ -4,7 +4,6 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import java.lang.RuntimeException
 
 class BetterAdapter(vararg val binders: Binder<*, Holder<*>>) : RecyclerView.Adapter<BetterAdapter.MyViewHolder<*, Holder<*>>>() {
 
@@ -18,7 +17,10 @@ class BetterAdapter(vararg val binders: Binder<*, Holder<*>>) : RecyclerView.Ada
 
     override fun getItemViewType(position: Int): Int {
         val obj = data[position]
-        return binders.withIndex().filter { it.value.isMyType(obj) }.map { it.index }.firstOrNull() ?: throw RuntimeException("No binder for position $position")
+        return binders.withIndex()
+                .filter { it.value.isMyType(obj) }
+                .map { it.index }
+                .firstOrNull() ?: throw BinderException(position, obj::class.java)
     }
 
     inner class MyViewHolder<T, out H : Holder<T>>(parent: ViewGroup, binder: Binder<T, H>) : RecyclerView.ViewHolder(LayoutInflater.from(parent.context).inflate(binder.getLayoutResId(), parent, false)) {
@@ -40,12 +42,18 @@ class BetterAdapter(vararg val binders: Binder<*, Holder<*>>) : RecyclerView.Ada
     }
 }
 
+/***
+ * Binder is used for providing layout and creating holder for loaded view
+ */
 interface Binder<in T, out H : Holder<T>> {
     fun getLayoutResId(): Int
     fun createHolder(): H
     fun isMyType(obj: Any): Boolean
 }
 
+/***
+ * Holder is used for finding, storing view and binding its specific type of item to this views
+ */
 interface Holder<in T> {
     fun initViews(itemView: View)
     fun bind(item: T)
@@ -54,7 +62,6 @@ interface Holder<in T> {
 abstract class EasyBinderHolder<T>(private val layoutResId: Int, private val clazz: Class<T>) : Holder<T>, Binder<T, EasyBinderHolder<T>>, Cloneable {
 
     protected lateinit var itemView: View
-
 
     override fun initViews(itemView: View) {
         this.itemView = itemView
@@ -95,3 +102,8 @@ open class EmptyBinderHolder<T>(layoutResId: Int, clazz: Class<T>) : EasyBinderH
     override fun bind(item: T) {}
 
 }
+
+/***
+ * Exception that is throwed when no Binder is found for specific type of item on currently binded position
+ */
+class BinderException(position: Int, clazz: Class<*>) : RuntimeException("No binder found for position: $position, type: $clazz")
