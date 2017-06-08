@@ -7,6 +7,7 @@ import android.widget.TextView
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
 import sk.lighture.betteradapter.BetterAdapter
+import sk.lighture.betteradapter.EasyBinderHolder
 import sk.lighture.betteradapter.EmptyBinderHolder
 
 class MainActivity : AppCompatActivity() {
@@ -15,9 +16,13 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         list.layoutManager = LinearLayoutManager(this)
-        val betterAdapter = BetterAdapter(HeaderHolder(), ItemHolder(), FooterHolder())
+        val betterAdapter = BetterAdapter(
+                HeaderHolder(),
+                ItemHolder(),
+                FooterHolder()
+        )
         betterAdapter.data.add(Header("Header"))
-        (0..10).forEach {
+        (0..100).forEach {
             betterAdapter.data.add(Item("Item $it", "Ttem text"))
         }
         betterAdapter.data.add(Footer("Footer"))
@@ -28,29 +33,32 @@ class MainActivity : AppCompatActivity() {
         Toast.makeText(this, "Clicked: $item", Toast.LENGTH_SHORT).show()
     }
 
-    class HeaderHolder : EmptyBinderHolder<Header>(R.layout.row_header, Header::class.java) {
-
-        override fun bind(item: Header) {
-            (itemView as TextView).text = item.text
-        }
-
-    }
-
-    inner class ItemHolder : EmptyBinderHolder<Item>(R.layout.row_item, Item::class.java) {
-
-        override fun bind(item: Item) {
-            (itemView as TextView).text = "${item.title} ${item.text}"
-            itemView.setOnClickListener {
-                onItemClicked(item)
-            }
-        }
-
-    }
+    class HeaderHolder : EmptyBinderHolder<Header>(R.layout.row_header, Header::class.java)
 
     class FooterHolder : EmptyBinderHolder<Footer>(R.layout.row_footer, Footer::class.java) {
 
         override fun bind(item: Footer) {
             (itemView as TextView).text = item.text
+        }
+
+    }
+
+    inner class ItemHolder : EasyBinderHolder<Item>(R.layout.row_item, Item::class.java) {
+
+        lateinit var title: TextView
+        lateinit var text: TextView
+
+        override fun init() {
+            title = itemView.findViewById(R.id.title) as TextView
+            text = itemView.findViewById(R.id.text) as TextView
+        }
+
+        override fun bind(item: Item) {
+            title.text = item.title
+            text.text = item.text
+            itemView.setOnClickListener {
+                onItemClicked(item)
+            }
         }
 
     }

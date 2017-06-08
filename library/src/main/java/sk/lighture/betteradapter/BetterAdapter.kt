@@ -68,10 +68,11 @@ interface Holder<in T> {
  */
 abstract class EasyBinderHolder<T>(private val layoutResId: Int, private val clazz: Class<T>) : Holder<T>, Binder<T, EasyBinderHolder<T>>, Cloneable {
 
-    protected lateinit var itemView: View
+    lateinit var itemView: View
 
     override fun initViews(itemView: View) {
         this.itemView = itemView
+        init()
     }
 
     override fun getLayoutResId(): Int {
@@ -81,6 +82,8 @@ abstract class EasyBinderHolder<T>(private val layoutResId: Int, private val cla
     override fun isMyType(obj: Any): Boolean {
         return obj.javaClass.isClassInstance(clazz)
     }
+
+    abstract fun init()
 
     abstract override fun bind(item: T)
 
@@ -104,6 +107,8 @@ abstract class EasyBinderHolder<T>(private val layoutResId: Int, private val cla
  * Empty holder in which initialization of views is not wanted
  */
 open class EmptyBinderHolder<T>(layoutResId: Int, clazz: Class<T>) : EasyBinderHolder<T>(layoutResId, clazz) {
+
+    override fun init() {}
 
     override fun bind(item: T) {}
 
