@@ -5,6 +5,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 
+/**
+ * Adapter which holds data list of Any objects and binders for these objects.
+ * I there is no Binder for some object on data, BinderException is thrown
+ */
 class BetterAdapter(vararg val binders: Binder<*, Holder<*>>) : RecyclerView.Adapter<BetterAdapter.MyViewHolder<*, Holder<*>>>() {
 
     var data = mutableListOf<Any>()
@@ -42,7 +46,7 @@ class BetterAdapter(vararg val binders: Binder<*, Holder<*>>) : RecyclerView.Ada
     }
 }
 
-/***
+/**
  * Binder is used for providing layout and creating holder for loaded view
  */
 interface Binder<in T, out H : Holder<T>> {
@@ -51,7 +55,7 @@ interface Binder<in T, out H : Holder<T>> {
     fun isMyType(obj: Any): Boolean
 }
 
-/***
+/**
  * Holder is used for finding, storing view and binding its specific type of item to this views
  */
 interface Holder<in T> {
@@ -59,6 +63,9 @@ interface Holder<in T> {
     fun bind(item: T)
 }
 
+/**
+ * Holder in which initialization of views is wanted
+ */
 abstract class EasyBinderHolder<T>(private val layoutResId: Int, private val clazz: Class<T>) : Holder<T>, Binder<T, EasyBinderHolder<T>>, Cloneable {
 
     protected lateinit var itemView: View
@@ -93,17 +100,16 @@ abstract class EasyBinderHolder<T>(private val layoutResId: Int, private val cla
 
 }
 
+/**
+ * Empty holder in which initialization of views is not wanted
+ */
 open class EmptyBinderHolder<T>(layoutResId: Int, clazz: Class<T>) : EasyBinderHolder<T>(layoutResId, clazz) {
-
-    override fun initViews(itemView: View) {
-        super.initViews(itemView)
-    }
 
     override fun bind(item: T) {}
 
 }
 
-/***
+/**
  * Exception that is throwed when no Binder is found for specific type of item on currently binded position
  */
 class BinderException(position: Int, clazz: Class<*>) : RuntimeException("No binder found for position: $position, type: $clazz")
